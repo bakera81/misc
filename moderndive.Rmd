@@ -1,0 +1,42 @@
+---
+title: "moderndive"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(moderndive)
+library(gapminder)
+library(skimr)
+```
+
+## 6.1
+```{r}
+evals_ch6 <- evals %>%
+  select(ID, score, bty_avg, age)
+
+evals_ch6 %>%
+  select(score, bty_avg) %>%
+  skim()
+
+evals_ch6 %>%
+  get_correlation(score ~ age)
+
+ggplot(evals_ch6, aes(x = age, y = score)) +
+  geom_jitter() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "Beauty Score", y = "Teaching Score",
+       title = "Scatterplot of relationship of teaching and beauty scores")
+```
+
+
+```{r}
+score_model <- lm(score ~ age, data = evals_ch6)
+get_regression_table(score_model)
+```
+
+## Qs
+1. What does the slope of the best fit line mean if it isn't the correlation coefficient?
