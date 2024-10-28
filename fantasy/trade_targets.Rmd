@@ -1,0 +1,73 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-10-23"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# Identify trade targets by strength of remaining schedule
+https://www.fantasypros.com/nfl/points-allowed.php
+
+```{r}
+points_allowed <- read_csv("data/FantasyPros_Fantasy_Football_Points_Allowed.csv")
+
+my_players <- c(
+  "Jalen Hurts", "Breece Hall", "Najee Harris", "Marvin Harrison Jr.", "Stefon Diggs", 
+  "Evan Engram", "Brian Thomas Jr.", "Kareem Hunt", "DJ Moore", "Xavier Worthy",
+  "Jonathon Brooks", "T.J. Hockenson", "Zach Ertz"
+)
+
+# Higher ranking means favorable strength of schedule for that position group.
+sos <- read_csv("data/FantasyPros_Fantasy_Football_2024_Stength_Of_Schedule.csv") %>%
+  mutate(across(-Team, ~as.integer(str_extract(., '([0-5]) star', group = 1))))
+
+sos_wr <- read_csv("data/FantasyPros_Fantasy_Football_2024_Stength_Of_Schedule_WR.csv") %>%
+  mutate(rating = as.integer(str_extract(Rating, '([0-5]) star', group = 1))) %>%
+  select(-Rating) %>%
+  pivot_longer(starts_with("WR"), names_to = "position_depth", values_to = "name") %>%
+  mutate(position = "WR") %>%
+  filter(!is.na(name))
+
+sos_rb <- read_csv("data/FantasyPros_Fantasy_Football_2024_Stength_Of_Schedule_RB.csv") %>%
+  mutate(rating = as.integer(str_extract(Rating, '([0-5]) star', group = 1))) %>%
+  select(-Rating) %>%
+  pivot_longer(starts_with("RB"), names_to = "position_depth", values_to = "name") %>%
+  mutate(position = "RB") %>%
+  filter(!is.na(name))
+
+sos_te <- read_csv("data/FantasyPros_Fantasy_Football_2024_Stength_Of_Schedule_TE.csv") %>%
+  mutate(rating = as.integer(str_extract(Rating, '([0-5]) star', group = 1))) %>%
+  select(-Rating) %>%
+  pivot_longer(cols = c("TE1", "TE2"), names_to = "position_depth", values_to = "name") %>%
+  mutate(position = "TE") %>%
+  filter(!is.na(name))
+
+all_player_sos <- 
+  bind_rows(sos_wr, sos_rb, sos_te)
+
+on_the_chopping_block <- 
+  all_player_sos %>%
+  filter(name %in% my_players) %>%
+  arrange(rating)
+
+# My players
+all_player_sos %>%
+  filter(name %in% my_players) %>%
+  arrange(desc(rating))
+
+players_to_seek <- all_player_sos %>%
+  filter(
+    !name %in% my_players,
+    rating >= 4)
+    
+
+players_to_seek %>% 
+  filter(position == "WR") %>%
+  View
+
+```
+
