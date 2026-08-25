@@ -1,0 +1,43 @@
+# Draft Assistant — Quick Start
+
+## Before draft day
+1. Make sure Python 3 is installed (`python3 --version`).
+2. Keep this whole folder together — `draft_assistant.py`, `draft_engine.py`, and the `data/` folder all need to stay in the same relative locations.
+3. **Do a dry run.** Open a terminal, `cd` into this folder, run `python3 draft_assistant.py`, and try a few `pick` / `best` / `undo` commands against a mock draft. Confirm the top of the board looks right to you before trusting it live.
+4. If your rankings/projections change before draft day, replace the CSVs in `data/` with updated exports of the same type (filenames can shift slightly year to year — the loader matches files by keyword, e.g. anything with "Superflex_ADP" in the name).
+
+## On draft day
+```
+cd draft_assistant
+python3 draft_assistant.py
+```
+First run asks for your number of teams and draft slot — answer once, it's saved. Every later run picks up right where you left off (state lives in `draft_state.json` in this folder).
+
+## Commands
+| Command | What it does |
+|---|---|
+| `pick <name>` | Mark a player drafted by someone else |
+| `pick <name> mine` | Mark a player YOU drafted |
+| `undo` | Revert the last pick (works whether it was yours or an opponent's) |
+| `best` | Top 20 available players by VORP, all positions |
+| `best RB` | Top 20 available RBs |
+| `best RB 5` | Top 5 available RBs |
+| `best OP` | Top 20 available players eligible for your superflex/OP slot (QB/RB/WR/TE) |
+| `player <name>` | Full detail on one player, drafted or not |
+| `myteam` | Your roster so far + remaining dedicated-slot needs |
+| `status` | Current pick number, round, and picks until your next turn |
+| `help` | Show the command list |
+| `quit` | Save and exit |
+
+You don't need to type full names — partial names work (`pick cha` will offer Ja'Marr Chase, Chase Brown, etc. if there's more than one match) and small typos are tolerated.
+
+## If something goes wrong mid-draft
+- A bad command or typo never crashes the session — you'll see an error message and can just try again.
+- If you need to close the terminal or the app crashes outright, your draft state is saved after every single pick. Just re-run `python3 draft_assistant.py` and you're back exactly where you were — re-enter picks you may have missed with `pick`, or `undo` anything entered by mistake.
+- To wipe everything and start over (e.g. after a mock draft test), delete `draft_state.json` and re-run.
+
+## Reading the columns
+- **VORP** — season-long value over the last effective starter at that position (accounts for OP/superflex spillover). Your primary sort — tells you which position matters.
+- **VONA** — value over the best player likely still there at your *next* pick, based on real superflex ADP. Tells you whether you can wait a round. Recomputed live as the draft moves.
+- **Tier** — expert-consensus tier grouping; a tier change between now and your next pick is a good sanity check on a big VONA number.
+- Kickers and DST projections were converted from FantasyPros' per-game figures to season totals (×17) to be comparable with the season-total skill-player projections.

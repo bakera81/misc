@@ -1,0 +1,275 @@
+OP,Overall,Player (Bye),Sleeper,FFPC,AVG,Real-Time
+1,1,Jahmyr Gibbs   DET (6),2,1,1.5,1
+2,2,Bijan Robinson   ATL (11),1,3,2.0,2
+3,19,Josh Allen   BUF (7),3,2,2.5,3
+4,3,Ja'Marr Chase   CIN (6),4,4,4.0,4
+5,4,Puka Nacua   LAR (11),5,5,5.0,5
+6,6,Jaxon Smith-Njigba   SEA (11),6,9,7.5,8  -2
+7,5,Christian McCaffrey   SF (8),7,8,7.5,6  +1
+8,37,Lamar Jackson   BAL (13),10,6,8.0,9  -1
+9,52,Drake Maye   NE (11),9,7,8.0,12  -3
+10,7,Jonathan Taylor   IND (13),8,11,9.5,7  +3
+11,8,Amon-Ra St. Brown   DET (6),11,13,12.0,10  +1
+12,9,James Cook III   BUF (7),12,16,14.0,11  +1
+13,53,Joe Burrow   CIN (6),14,14,14.0,18  -5
+14,61,Jayden Daniels   WAS (7),18,12,15.0,19  -5
+15,22,Brock Bowers   LV (13),21,10,15.5,26  -11
+16,11,Ashton Jeanty   LV (13),16,15,15.5,22  -6
+17,10,CeeDee Lamb   DAL (14),13,20,16.5,13  +4
+18,13,Justin Jefferson   MIN (6),15,21,18.0,15  +3
+19,23,Trey McBride   ARI (14),20,18,19.0,29  -10
+20,14,De'Von Achane   MIA (6),17,24,20.5,16  +4
+21,71,Caleb Williams   CHI (10),24,19,21.5,31  -10
+22,12,Saquon Barkley   PHI (10),19,25,22.0,14  +8
+23,62,Jalen Hurts   PHI (10),28,17,22.5,28  -5
+24,16,Omarion Hampton   LAC (7),23,22,22.5,21  +3
+25,17,Kenneth Walker III   KC (5),22,29,25.5,20  +5
+26,15,Chase Brown   CIN (6),27,26,26.5,17  +9
+27,77,Justin Herbert   LAC (7),32,23,27.5,33  -6
+28,20,Drake London   ATL (11),25,33,29.0,23  +5
+29,18,Derrick Henry   BAL (13),29,31,30.0,25  +4
+30,21,A.J. Brown   NE (11),26,36,31.0,24  +6
+31,78,Dak Prescott   DAL (14),37,27,32.0,36  -5
+32,85,Trevor Lawrence   JAC (7),42,28,35.0,44  -12
+33,92,Jaxson Dart   NYG (8),40,30,35.0,50  -17
+34,26,Jeremiyah Love   ARI (14),33,37,35.0,37  -3
+35,24,Nico Collins   HOU (8),30,41,35.5,27  +8
+36,42,Colston Loveland   CHI (10),38,34,36.0,46  -10
+37,25,George Pickens   DAL (14),31,45,38.0,30  +7
+38,32,Rashee Rice   KC (5),35,42,38.5,38
+39,104,Patrick Mahomes II   KC (5),43,35,39.0,55  -16
+40,107,Brock Purdy   SF (8),53,32,42.5,57  -17
+41,101,Bo Nix   DEN (10),46,39,42.5,52  -11
+42,29,Malik Nabers   NYG (8),34,52,43.0,32  +10
+43,28,Chris Olave   NO (8),36,50,43.0,34  +9
+44,34,Breece Hall   NYJ (13),44,43,43.5,45  -1
+45,27,Kyren Williams   LAR (11),41,49,45.0,35  +10
+46,30,Josh Jacobs   GB (11),39,55,47.0,40  +6
+47,51,Tyler Warren   IND (13),49,47,48.0,60  -13
+48,100,Matthew Stafford   LAR (11),62,38,50.0,58  -10
+49,118,Jared Goff   DET (6),61,40,50.5,66  -17
+50,31,Javonte Williams   DAL (14),48,53,50.5,42  +8
+51,33,DeVonta Smith   PHI (10),52,54,53.0,39  +12
+52,35,Zay Flowers   BAL (13),50,59,54.5,41  +11
+53,38,Tee Higgins   CIN (6),47,63,55.0,43  +10
+54,39,Tetairoa McMillan   CAR (5),45,67,56.0,47  +7
+55,36,Cam Skattebo   NYG (8),56,56,56.0,54  +1
+56,40,Travis Etienne Jr.   NO (8),58,57,57.5,51  +5
+57,43,Ladd McConkey   LAC (7),54,62,58.0,48  +9
+58,41,Emeka Egbuka   TB (10),57,61,59.0,56  +2
+59,131,Baker Mayfield   TB (10),71,48,59.5,81  -22
+60,44,Garrett Wilson   NYJ (13),55,64,59.5,53  +7
+61,137,Jordan Love   GB (11),69,51,60.0,80  -19
+62,124,Kyler Murray   MIN (6),82,44,63.0,75  -13
+63,47,Bucky Irving   TB (10),51,75,63.0,61  +2
+64,157,Tyler Shough   NO (8),85,46,65.5,91  -27
+65,46,Jaylen Waddle   DEN (10),60,72,66.0,49  +16
+66,54,Luther Burden III   CHI (10),59,74,66.5,67  -1
+67,49,D'Andre Swift   CHI (10),65,68,66.5,59  +8
+68,45,Quinshon Judkins   CLE (11),66,69,67.5,69  -1
+69,48,David Montgomery   HOU (8),67,70,68.5,64  +5
+70,55,TreVeyon Henderson   NE (11),64,77,70.5,71  -1
+71,57,Davante Adams   LAR (11),63,82,72.5,65  +6
+72,58,Bhayshul Tuten   JAC (7),74,71,72.5,70  +2
+73,145,Sam Darnold   SEA (11),86,60,73.0,94  -21
+74,56,Terry McLaurin   WAS (7),68,78,73.0,62  +12
+75,67,Harold Fannin Jr.   CLE (11),75,79,77.0,82  -7
+76,65,Tucker Kraft   GB (11),78,76,77.0,79  -3
+77,70,Sam LaPorta   DET (6),70,85,77.5,77
+78,50,DJ Moore   BUF (7),73,83,78.0,63  +15
+79,74,Kyle Pitts Sr.   ATL (11),77,81,79.0,84  -5
+80,60,Jameson Williams   DET (6),72,87,79.5,68  +12
+81,169,C.J. Stroud   HOU (8),96,65,80.5,101  -20
+82,63,Mike Evans   SF (8),76,86,81.0,76  +6
+83,154,Malik Willis   MIA (6),105,58,81.5,103  -20
+84,59,Jadarian Price   SEA (11),83,84,83.5,74  +10
+85,64,Rome Odunze   CHI (10),80,89,84.5,72  +13
+86,66,Christian Watson   GB (11),81,88,84.5,73  +13
+87,73,Carnell Tate   TEN (9),79,93,86.0,83  +4
+88,172,Cam Ward   TEN (9),101,73,87.0,119  -31
+89,68,Jaylen Warren   PIT (9),84,91,87.5,85  +4
+90,174,Daniel Jones   IND (13),111,66,88.5,111  -21
+91,72,Rhamondre Stevenson   NE (11),92,96,94.0,88  +3
+92,69,Parker Washington   JAC (7),87,103,95.0,78  +14
+93,75,Brian Thomas Jr.   JAC (7),89,101,95.0,87  +6
+94,76,Marvin Harrison Jr.   ARI (14),91,100,95.5,86  +8
+95,83,RJ Harvey   DEN (10),88,106,97.0,100  -5
+96,80,Tony Pollard   TEN (9),98,97,97.5,90  +6
+97,175,Bryce Young   CAR (5),116,80,98.0,128  -31
+98,93,Travis Kelce   KC (5),99,98,98.5,97  +1
+99,90,George Kittle   SF (8),103,95,99.0,96  +3
+100,167,Fernando Mendoza   LV (13),106,94,100.0,134  -34
+101,96,Jordyn Tyson   NO (8),95,107,101.0,132  -31
+102,82,DK Metcalf   PIT (9),90,113,101.5,89  +13
+103,79,Rico Dowdle   PIT (9),100,104,102.0,95  +8
+104,81,Chuba Hubbard   CAR (5),102,102,102.0,104
+105,99,Dalton Kincaid   BUF (7),93,112,102.5,102  +3
+106,87,Courtland Sutton   DEN (10),94,116,105.0,93  +13
+107,113,Jake Ferguson   DAL (14),107,108,107.5,127  -20
+108,102,Isaiah Likely   NYG (8),113,105,109.0,120  -12
+109,86,Michael Wilson   ARI (14),97,124,110.5,99  +10
+110,84,Jonathon Brooks   CAR (5),119,109,114.0,92  +18
+111,88,J.K. Dobbins   DEN (10),110,118,114.0,105  +6
+112,122,Dallas Goedert   PHI (10),118,111,114.5,122  -10
+113,91,Blake Corum   LAR (11),112,117,114.5,108  +5
+114,117,Mark Andrews   BAL (13),114,115,114.5,126  -12
+115,95,Alec Pierce   IND (13),115,114,114.5,109  +6
+116,94,Kyle Monangai   CHI (10),109,121,115.0,116
+117,89,Chris Godwin Jr.   TB (10),108,123,115.5,98  +19
+118,234,Jacoby Brissett   ARI (14),143,90,116.5,145  -27
+119,177,Aaron Rodgers   PIT (9),142,92,117.0,146  -27
+120,103,Makai Lemon   PHI (10),104,130,117.0,117  +3
+121,109,Kenny Gainwell   TB (10),124,110,117.0,118  +3
+122,240,Geno Smith   NYJ (13),145,99,122.0,147  -25
+123,106,Quentin Johnston   LAC (7),125,120,122.5,123
+124,110,Michael Pittman Jr.   PIT (9),121,125,123.0,113  +11
+125,105,Josh Downs   IND (13),123,126,124.5,106  +19
+126,112,Jayden Reed   GB (11),120,132,126.0,110  +16
+127,108,Jordan Addison   MIN (6),117,136,126.5,112  +15
+128,97,Jordan Mason   MIN (6),128,127,127.5,114  +14
+129,114,Rachaad White   WAS (7),137,119,128.0,131  -2
+130,128,Jakobi Meyers   JAC (7),122,137,129.5,133  -3
+131,119,Aaron Jones Sr.   MIN (6),131,129,130.0,130  +1
+132,123,Wan'Dale Robinson   TEN (9),127,134,130.5,121  +11
+133,98,Jacory Croskey-Merritt   WAS (7),129,133,131.0,115  +18
+134,166,Oronde Gadsden II   LAC (7),130,138,134.0,167  -33
+135,156,Brenton Strange   JAC (7),134,135,134.5,150  -15
+136,111,Stefon Diggs   WAS (7),126,146,136.0,107  +29
+137,150,Hunter Henry   NE (11),132,140,136.0,151  -14
+138,133,Xavier Worthy   KC (5),136,139,137.5,136  +2
+139,153,Juwan Johnson   NO (8),148,128,138.0,149  -10
+140,130,Matthew Golden   GB (11),135,141,138.0,129  +11
+141,127,KC Concepcion   CLE (11),133,147,140.0,125  +16
+142,164,Chig Okonkwo   WAS (7),152,131,141.5,162  -20
+143,248,Tua Tagovailoa   ATL (11),162,122,142.0,166  -23
+144,155,Khalil Shakir   BUF (7),140,151,145.5,141  +3
+145,147,Romeo Doubs   NE (11),138,154,146.0,135  +10
+146,146,Chris Rodriguez Jr.   JAC (7),151,142,146.5,142  +4
+147,173,Kenyon Sadiq   NYJ (13),146,149,147.5,171  -24
+148,170,T.J. Hockenson   MIN (6),154,143,148.5,169  -21
+149,184,Dalton Schultz   HOU (8),150,148,149.0,157  -8
+150,139,Tyler Allgeier   ARI (14),141,158,149.5,137  +13
+151,143,Tyrone Tracy Jr.   NYG (8),156,145,150.5,156  -5
+152,158,Jalen Coker   CAR (5),147,156,151.5,139  +13
+153,132,Zach Charbonnet   SEA (11),153,150,151.5,148  +5
+154,159,Keaton Mitchell   LAC (7),166,144,155.0,152  +2
+155,144,Woody Marks   HOU (8),157,153,155.0,144  +11
+156,129,Deebo Samuel Sr.   SF (8),139,172,155.5,138  +18
+157,140,Rashid Shaheed   SEA (11),155,160,157.5,140  +17
+158,161,Tyjae Spears   TEN (9),161,155,158.0,153  +5
+159,120,De'Zhaun Stribling   SF (8),144,180,162.0,124  +35
+160,188,AJ Barner   SEA (11),163,161,162.0,187  -27
+161,136,Alvin Kamara   NO (8),160,165,162.5,158  +3
+162,149,Jonah Coleman   DEN (10),159,167,163.0,155  +7
+163,142,Brian Robinson Jr.   ATL (11),149,178,163.5,159  +4
+164,168,Denzel Boston   CLE (11),158,177,167.5,154  +10
+165,151,Isiah Pacheco   DET (6),173,162,167.5,164  +1
+166,264,Shedeur Sanders   CLE (11),172,163,167.5,172  -6
+167,266,Deshaun Watson   CLE (11),186,152,169.0,180  -13
+168,203,Dylan Sampson   CLE (11),176,164,170.0,173  -5
+169,160,Jalen Nailor   LV (13),167,181,174.0,163  +6
+170,181,Travis Hunter   JAC (7),170,179,174.5,174  -4
+171,162,Tank Bigsby   PHI (10),174,175,174.5,160  +11
+172,183,Omar Cooper Jr.   NYJ (13),169,182,175.5,176  -4
+173,204,Greg Dulcich   MIA (6),195,157,176.0,208  -35
+174,261,Michael Penix Jr.   ATL (11),193,159,176.0,193  -19
+175,246,Gunnar Helm   TEN (9),185,168,176.5,226  -51
+176,182,Jalen McMillan   TB (10),179,174,176.5,185  -9
+177,176,Jauan Jennings   MIN (6),171,183,177.0,182  -5
+178,189,Terrance Ferguson   LAR (11),189,166,177.5,216  -38
+179,260,Kirk Cousins   LV (13),182,173,177.5,192  -13
+180,244,Cade Otton   TB (10),191,170,180.5,249  -69
+181,213,Tank Dell   HOU (8),177,188,182.5,178  +3
+182,220,Tre Tucker   LV (13),190,176,183.0,189  -7
+183,194,Pat Freiermuth   PIT (9),197,171,184.0,197  -14
+184,218,Jerry Jeudy   CLE (11),180,189,184.5,183  +1
+185,135,Mike Washington Jr.   LV (13),168,202,185.0,143  +42
+186,222,Emmett Johnson   KC (5),175,197,186.0,175  +11
+187,179,David Njoku   LAC (7),188,184,186.0,233  -46
+188,171,MarShawn Lloyd   GB (11),184,190,187.0,165  +23
+189,210,Braelon Allen   NYJ (13),196,186,191.0,181  +8
+190,212,Malik Washington   MIA (6),183,203,193.0,168  +22
+191,224,Tre' Harris   LAC (7),204,192,198.0,198  -7
+192,235,Adonai Mitchell   NYJ (13),201,195,198.0,188  +4
+193,278,Carson Beck   ARI (14),200,196,198.0,200  -7
+194,193,James Conner   ARI (14),178,220,199.0,219  -25
+195,255,Ryan Flournoy   DAL (14),205,193,199.0,195
+196,152,Ja'Kobi Lane   BAL (13),165,238,201.5,170  +26
+197,227,Nicholas Singleton   TEN (9),198,209,203.5,201  -4
+198,236,Zachariah Branch   ATL (11),192,217,204.5,231  -33
+199,241,Kaytron Allen   WAS (7),215,194,204.5,250  -51
+200,273,Colby Parkinson   LAR (11),213,199,206.0,215  -15
+201,265,Eli Stowers   PHI (10),207,205,206.0,247  -46
+202,180,Keenan Allen   IND (13),187,226,206.5,161  +41
+203,215,Kaelon Black   SF (8),199,214,206.5,186  +17
+204,258,Antonio Williams   WAS (7),203,210,206.5,194  +10
+205,196,Isaac TeSlaa   DET (6),206,207,206.5,240  -35
+206,280,Evan Engram   DEN (10),232,185,208.5,222  -16
+207,226,Jaydon Blue   DAL (14),217,201,209.0,199  +8
+208,223,Dontayvion Wicks   PHI (10),202,216,209.0,184  +24
+209,217,Cyrus Allen   KC (5),181,240,210.5,177  +32
+210,317,Mike Gesicki   CIN (6),230,191,210.5,
+211,228,Ray Davis   BUF (7),218,204,211.0,179  +32
+212,230,Justice Hill   BAL (13),240,187,213.5,241  -29
+213,247,Kimani Vidal   LAC (7),219,208,213.5,223  -10
+214,,Garrett Nussmeier   KC (5),194,,194.0,
+215,257,Jake Tonges   SF (8),223,215,219.0,227  -12
+216,242,Sean Tucker   TB (10),239,200,219.5,209  +7
+217,231,Kayshon Boutte   HOU (8),214,225,219.5,204  +13
+218,259,Germie Bernard   PIT (9),221,218,219.5,210  +8
+219,225,Calvin Ridley   TEN (9),242,198,220.0,191  +28
+220,243,Pat Bryant   DEN (10),212,230,221.0,202  +18
+221,195,Cooper Kupp   SEA (11),216,228,222.0,225  -4
+222,245,Demond Claiborne   MIN (6),234,212,223.0,232  -10
+223,206,Tyreek Hill,208,,208.0,212  +11
+224,271,Ted Hurst III   TB (10),224,227,225.5,220  +4
+225,282,Ty Simpson   LAR (11),209,,209.0,246  -21
+226,232,Malachi Fields   NYG (8),210,,210.0,244  -18
+227,,Kendre Miller   NO (8),211,,211.0,251  -24
+228,249,Jordan James   SF (8),244,211,227.5,235  -7
+229,348,Mason Taylor   NYJ (13),235,221,228.0,
+230,338,Michael Mayer   LV (13),256,213,234.5,
+231,297,J.J. McCarthy   MIN (6),225,233,229.0,234  -3
+232,357,Rashod Bateman   BAL (13),249,219,234.0,236  -4
+233,,Will Howard   PIT (9),220,,220.0,
+234,304,Trey Benson,222,,222.0,243  -9
+235,262,George Holani   SEA (11),267,222,244.5,218  +17
+236,277,Darnell Mooney   NYG (8),257,223,240.0,205  +31
+237,279,Samaje Perine   CIN (6),265,224,244.5,238  -1
+238,,Audric Estime   NO (8),226,,226.0,
+239,336,Darren Waller   CAR (5),227,,227.0,242  -3
+240,,Jarquez Hunter   LAR (11),228,,228.0,
+241,229,Caleb Douglas   MIA (6),229,,229.0,196  +45
+242,293,Jaylin Noel   HOU (8),233,239,236.0,203  +39
+243,268,Chris Bell   MIA (6),237,235,236.0,239  +4
+244,,Darnell Washington   PIT (9),252,229,240.5,
+245,275,Najee Harris   NYG (8),231,,231.0,213  +32
+246,301,Theo Johnson   NYG (8),250,231,240.5,
+247,251,Jaylen Wright   MIA (6),248,232,240.0,214  +33
+248,,Mac Jones   SF (8),243,234,238.5,248
+249,,Quinn Ewers   MIA (6),236,,236.0,
+250,263,Keon Coleman   BUF (7),245,236,240.5,228  +22
+251,296,Brandon Aiyuk   SF (8),262,237,249.5,230  +21
+252,276,Devaughn Vele   NO (8),238,,238.0,206  +46
+253,305,Troy Franklin   DEN (10),241,241,241.0,224  +29
+254,313,Christian Kirk   SF (8),,242,242.0,
+255,382,Chimere Dike   TEN (9),246,,246.0,217  +38
+256,299,Justin Fields   KC (5),247,,247.0,245  +11
+257,377,Elijah Arroyo   SEA (11),251,,251.0,
+258,370,Elijah Sarratt   BAL (13),253,,253.0,
+259,291,Tory Horton   SEA (11),254,,254.0,
+260,270,Riley Leonard   IND (13),255,,255.0,
+261,341,Jack Bech   LV (13),258,,258.0,229  +32
+262,274,Emanuel Wilson   SEA (11),259,,259.0,221  +41
+263,,Elic Ayomanor   TEN (9),260,,260.0,
+264,,Anthony Richardson Sr.   IND (13),261,,261.0,
+265,,Odell Beckham Jr.   NYG (8),264,,264.0,190  +75
+266,,Eli Raridon   NE (11),266,,266.0,
+267,374,Seth McGowan   IND (13),268,,268.0,
+268,,Cole Kmet   CHI (10),269,,269.0,
+269,,Cade Klubnik   NYJ (13),270,,270.0,
+270,,Joe Milton III   DAL (14),271,,271.0,
+271,,Dawson Knox   BUF (7),272,,272.0,
+272,,Tyson Bagent   CHI (10),273,,273.0,
+273,309,Joe Flacco   CIN (6),274,,274.0,207  +66
+274,350,Adam Randall   BAL (13),275,,275.0,
