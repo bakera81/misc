@@ -318,7 +318,7 @@ def build_player_pool(data_dir: str):
     """
     paths = {
         "proj": _find_one(data_dir, "PROJPOINTS", "OP_Rankings"),
-        "rank": _find_one(data_dir, "RANK", "OP_Rankings"),
+        "rank": _find_one(data_dir, "_RANK_", "OP_Rankings"),
         "dst_pts": _find_one(data_dir, "Draft_DST_Rankings"),
         "k_pts": _find_one(data_dir, "Draft_K_Rankings"),
         "sf_adp": _find_one(data_dir, "Superflex_ADP"),

@@ -7,6 +7,9 @@ during your draft:
 
     pick <name>          mark a player drafted by someone else
     pick <name> mine      mark a player YOU drafted
+    bulk                  paste multiple picks at once (ESPN copy/paste format)
+    teamname <name>        set/update your fantasy team name (used by 'bulk'
+                           to detect which picks are yours)
     undo                  revert the last pick
     best [pos] [n]        show top available players (default: all positions, 20)
     player <name>         full detail on one player
@@ -23,6 +26,7 @@ script and everything picks up where you left off.
 import difflib
 import json
 import os
+import re
 import sys
 
 import draft_engine as de
@@ -36,6 +40,7 @@ class DraftSession:
         self.pool = {}
         self.my_slot = None
         self.num_teams = de.NUM_TEAMS
+        self.my_team_name = None
         self.picks = []  # list of dicts: {key: [name,team], mine: bool}
 
     # -- setup / persistence -------------------------------------------------
@@ -54,6 +59,7 @@ class DraftSession:
             return False
         self.my_slot = state.get("my_slot")
         self.num_teams = state.get("num_teams", de.NUM_TEAMS)
+        self.my_team_name = state.get("my_team_name")
         self.picks = state.get("picks", [])
         self._replay_picks()
         return True
@@ -62,6 +68,7 @@ class DraftSession:
         state = {
             "my_slot": self.my_slot,
             "num_teams": self.num_teams,
+            "my_team_name": self.my_team_name,
             "picks": self.picks,
         }
         tmp_path = STATE_PATH + ".tmp"
@@ -92,26 +99,30 @@ class DraftSession:
 
     # -- player lookup ---------------------------------------------------
 
-    def find_player(self, query):
-        """Match a name against available (undrafted) players: exact, then
-        substring (handles partial typing like 'cha' -> 'Ja'Marr Chase'),
-        then fuzzy. Returns (player, True) or (None, candidates_list)."""
+    def find_player(self, query, include_drafted=False):
+        """Match a name against players: exact, then substring (handles
+        partial typing like 'cha' -> 'Ja'Marr Chase'), then fuzzy.
+        By default only searches available (undrafted) players; pass
+        include_drafted=True to also match already-drafted players (used by
+        bulk import to detect duplicates). Returns (player, True) or
+        (None, candidates_list)."""
         norm_query = de.normalize_name(query)
-        available = [p for p in self.pool.values() if not p.drafted]
+        pool = list(self.pool.values()) if include_drafted else \
+            [p for p in self.pool.values() if not p.drafted]
 
-        exact = [p for p in available if de.normalize_name(p.name) == norm_query]
+        exact = [p for p in pool if de.normalize_name(p.name) == norm_query]
         if len(exact) == 1:
             return exact[0], True
 
         if len(norm_query) >= 3:
-            substr = [p for p in available if norm_query in de.normalize_name(p.name)]
+            substr = [p for p in pool if norm_query in de.normalize_name(p.name)]
             if len(substr) == 1:
                 return substr[0], True
             if len(substr) > 1:
                 substr.sort(key=lambda p: p.vorp if p.vorp is not None else -9999, reverse=True)
                 return None, substr[:5]
 
-        name_map = {p.name: p for p in available}
+        name_map = {p.name: p for p in pool}
         close = difflib.get_close_matches(query, name_map.keys(), n=5, cutoff=0.6)
         if len(close) == 1:
             return name_map[close[0]], True
@@ -119,7 +130,121 @@ class DraftSession:
             return None, [name_map[c] for c in close]
         return None, []
 
-    # -- commands ----------------------------------------------------------
+    def cmd_teamname(self, args):
+        if not args:
+            current = self.my_team_name or "(not set)"
+            print(f"Current team name: {current}")
+            print("Usage: teamname <your exact ESPN fantasy team name>")
+            return
+        self.my_team_name = " ".join(args)
+        print(f"Team name set to: {self.my_team_name}")
+        self.save_state()
+
+    # -- bulk paste ----------------------------------------------------------
+
+    _BULK_PLAYER_RE = re.compile(r"^(.+?)\s*/\s*(\S+)\s+(\S+)$")
+    _BULK_PICK_RE = re.compile(r"^R(\d+)\s*,\s*P(\d+)\s*-\s*(.+)$")
+
+    def parse_bulk_text(self, text):
+        """Parse ESPN's copy/paste draft-log format into a list of dicts:
+        {round, pick_in_round, overall_pick, player_name, fantasy_team}.
+        Malformed blocks are skipped and reported, not fatal."""
+        lines = [ln.strip() for ln in text.splitlines()]
+        lines = [ln for ln in lines if ln]  # drop blank lines
+        entries = []
+        problems = []
+        i = 0
+        while i < len(lines):
+            player_line = lines[i]
+            pick_line = lines[i + 1] if i + 1 < len(lines) else None
+            pm = self._BULK_PLAYER_RE.match(player_line)
+            pkm = self._BULK_PICK_RE.match(pick_line) if pick_line else None
+            if pm and pkm:
+                name = pm.group(1).strip()
+                rnd, pick_in_rnd, team_name = int(pkm.group(1)), int(pkm.group(2)), pkm.group(3).strip()
+                overall = (rnd - 1) * self.num_teams + pick_in_rnd
+                entries.append({
+                    "round": rnd, "pick_in_round": pick_in_rnd, "overall_pick": overall,
+                    "player_name": name, "fantasy_team": team_name,
+                })
+                i += 2
+            else:
+                problems.append(player_line)
+                i += 1
+        return entries, problems
+
+    def cmd_bulk(self, args):
+        if self.my_team_name is None:
+            print("First, what's your exact fantasy team name as shown in ESPN?")
+            print("(This is how bulk-imported picks get tagged as yours.)")
+            name = input("Team name: ").strip()
+            if name:
+                self.my_team_name = name
+                self.save_state()
+
+        print("Paste your picks below. When you're done, type END on its own line and press Enter.")
+        pasted_lines = []
+        while True:
+            try:
+                line = input()
+            except (EOFError, KeyboardInterrupt):
+                break
+            if line.strip().upper() == "END":
+                break
+            pasted_lines.append(line)
+        text = "\n".join(pasted_lines)
+
+        entries, problems = self.parse_bulk_text(text)
+        if not entries:
+            print("Didn't find any recognizable picks in that paste. No changes made.")
+            return
+
+        entries.sort(key=lambda e: e["overall_pick"])
+
+        added, skipped_dup, unmatched, ambiguous = 0, 0, [], []
+        for e in entries:
+            player, result = self.find_player(e["player_name"], include_drafted=True)
+            if player is None:
+                if result:
+                    ambiguous.append((e["player_name"], result))
+                else:
+                    unmatched.append(e["player_name"])
+                continue
+            if player.drafted:
+                skipped_dup += 1
+                continue
+            mine = (self.my_team_name is not None and
+                    de.normalize_name(self.my_team_name) == de.normalize_name(e["fantasy_team"]))
+            self.picks.append({"key": list(player.key), "mine": mine})
+            added += 1
+
+        self._replay_picks()
+        self.save_state()
+
+        print(f"\nAdded {added} pick(s).", end="")
+        if skipped_dup:
+            print(f" Skipped {skipped_dup} already-recorded duplicate(s).")
+        else:
+            print()
+        if unmatched:
+            print(f"Could not find {len(unmatched)} player(s) (already off the board, or name "
+                  f"didn't match) -- enter these manually with 'pick <name>' if needed:")
+            for n in unmatched:
+                print(f"  - {n}")
+        if ambiguous:
+            print(f"{len(ambiguous)} name(s) matched multiple available players -- enter manually:")
+            for n, candidates in ambiguous:
+                names = ", ".join(c.name for c in candidates)
+                print(f"  - '{n}' matched: {names}")
+        if self.my_team_name:
+            matched_mine = sum(1 for e in entries if de.normalize_name(e["fantasy_team"]) ==
+                                de.normalize_name(self.my_team_name))
+            if matched_mine == 0:
+                print(f"\nNote: none of the pasted picks matched your team name "
+                      f"('{self.my_team_name}') -- double check it with 'teamname' if that's "
+                      f"unexpected.")
+
+    # -- other commands -------------------------------------------------
 
     def cmd_pick(self, args):
         if not args:
@@ -283,6 +408,8 @@ def main():
 
     commands = {
         "pick": session.cmd_pick, "draft": session.cmd_pick,
+        "bulk": session.cmd_bulk,
+        "teamname": session.cmd_teamname,
         "undo": session.cmd_undo,
         "best": session.cmd_best,
         "player": session.cmd_player,

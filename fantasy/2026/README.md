@@ -18,6 +18,8 @@ First run asks for your number of teams and draft slot — answer once, it's sav
 |---|---|
 | `pick <name>` | Mark a player drafted by someone else |
 | `pick <name> mine` | Mark a player YOU drafted |
+| `bulk` | Paste multiple picks at once (ESPN app copy/paste format, see below) |
+| `teamname <name>` | Set/update your exact fantasy team name (used to detect your picks in `bulk`) |
 | `undo` | Revert the last pick (works whether it was yours or an opponent's) |
 | `best` | Top 20 available players by VORP, all positions |
 | `best RB` | Top 20 available RBs |
@@ -30,6 +32,19 @@ First run asks for your number of teams and draft slot — answer once, it's sav
 | `quit` | Save and exit |
 
 You don't need to type full names — partial names work (`pick cha` will offer Ja'Marr Chase, Chase Brown, etc. if there's more than one match) and small typos are tolerated.
+
+### Bulk paste
+If you're copying multiple picks straight from the ESPN app (e.g. "everything since last round"), use `bulk` instead of typing `pick` one at a time. Type `bulk`, paste a block like this straight from ESPN, then type `END` on its own line:
+```
+Josh Allen / BUF QB
+R1, P1 - Luka and Loaded
+
+Jayden Daniels / WSH QB
+R1, P2 - Quinshon Rutabaga
+```
+The first time you use it, it'll ask for your exact ESPN team name (so it can tell which picks are yours) — you can also set/update this anytime with `teamname <your team name>`.
+
+Re-pasting picks you've already entered is safe — duplicates are silently skipped. Any player it can't match gets reported by name so you can add it manually with `pick`, without holding up the rest of the batch.
 
 ## If something goes wrong mid-draft
 - A bad command or typo never crashes the session — you'll see an error message and can just try again.
