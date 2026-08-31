@@ -12,6 +12,8 @@ during your draft:
                            to detect which picks are yours)
     undo                  revert the last pick
     best [pos] [n]        show top available players (default: all positions, 20)
+    board [n]              top n (default 6) available players for EACH position:
+                           QB, RB, WR, OP, TE, K, DST -- one draft-board view
     player <name>         full detail on one player
     myteam                your roster + remaining needs
     status                pick count / round / picks until your next turn
@@ -30,6 +32,36 @@ import re
 import sys
 
 import draft_engine as de
+
+# ANSI colors for the Tier column. Auto-disabled when stdout isn't an
+# interactive terminal (e.g. output redirected to a file) so nothing weird
+# ever gets written to a log.
+USE_COLOR = sys.stdout.isatty()
+_RESET = "\033[0m"
+_TIER_COLORS = {
+    1: "\033[92m",  # bright green -- elite tier
+    2: "\033[32m",  # green
+    3: "\033[33m",  # yellow
+    4: "\033[33m",  # yellow
+    5: "\033[38;5;208m",  # orange
+    6: "\033[38;5;208m",  # orange
+}
+_TIER_DEFAULT_COLOR = "\033[31m"  # red -- tier 7+ (deep/replaceable)
+_TIER_NONE_COLOR = "\033[90m"     # gray -- no tier data
+
+
+def _colorize_tier(tier):
+    """Return a width-4 tier string, ANSI-colored if enabled. Padding is
+    applied to the plain text BEFORE wrapping in color codes so terminal
+    column alignment isn't thrown off by the invisible escape characters."""
+    text = f"{(tier if tier is not None else -1):4}"
+    if not USE_COLOR:
+        return text
+    if tier is None:
+        code = _TIER_NONE_COLOR
+    else:
+        code = _TIER_COLORS.get(tier, _TIER_DEFAULT_COLOR)
+    return f"{code}{text}{_RESET}"
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 STATE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "draft_state.json")
@@ -94,8 +126,21 @@ class DraftSession:
 
     def _recompute(self):
         de.compute_vorp(self.pool)
-        picks_left = de.picks_until_next_turn(len(self.picks), self.my_slot, self.num_teams)
+        # VONA needs "how many picks happen AFTER the one I'm about to make,
+        # before I'm on the clock again" -- not "picks until now," which is
+        # always 0 exactly when it's your turn (the case that matters most).
+        # Shifting the base by 1 simulates this pick resolving first, then
+        # counts forward to the next occurrence of my_slot.
+        picks_left = de.picks_until_next_turn(len(self.picks) + 1, self.my_slot, self.num_teams)
         de.compute_vona(self.pool, picks_left)
+
+    def cmd_status(self, args):
+        total = len(self.picks)
+        rnd = total // self.num_teams + 1
+        pick_in_round = total % self.num_teams + 1
+        picks_left = de.picks_until_next_turn(total + 1, self.my_slot, self.num_teams)
+        print(f"Pick {total + 1} overall (Round {rnd}, slot {pick_in_round} of {self.num_teams} on the clock).")
+        print(f"Your draft slot: {self.my_slot}. Picks until your next turn (after this one): {picks_left}.")
 
     # -- player lookup ---------------------------------------------------
 
@@ -284,6 +329,33 @@ class DraftSession:
         print(f"Undid pick: {name}")
         self.save_state()
 
+    def _print_player_table(self, players, highlight_key=None):
+        if not players:
+            print("  (none available)")
+            return
+        current_pick = len(self.picks) + 1
+        show_marker = highlight_key is not None
+        prefix = "  " if show_marker else ""
+        adp_width = 13
+        header = (f'{prefix}{"Player":22} {"Pos":4} {"Team":4} {"VORP":>7} {"VONA":>7} {"Pts":>7} '
+                  f'{"Tier":>4} {"ADP":>{adp_width}} {"Rk":>5} {"Bye":>4} {"OffRk":>5}')
+        print(header)
+        print("-" * len(header))
+        for p in players:
+            if p.adp is not None:
+                delta = round(current_pick - p.adp)
+                adp_str = f"{p.adp:.1f} ({delta:+d})"
+            else:
+                adp_str = "-"
+            rk_str = str(p.rk) if p.rk is not None else "-"
+            bye_str = p.bye or "-"
+            vona_str = f"{p.vona:.1f}" if p.vona is not None else "-"
+            off_rk_str = str(p.off_rank) if p.off_rank is not None else "-"
+            row_prefix = ("* " if (show_marker and p.key == highlight_key) else "  ") if show_marker else ""
+            tier_colored = _colorize_tier(p.tier)
+            print(f"{row_prefix}{p.name:22} {p.position:4} {p.team:4} {p.vorp:7.1f} {vona_str:>7} "
+                  f"{p.points:7.1f} {tier_colored} {adp_str:>{adp_width}} {rk_str:>5} {bye_str:>4} {off_rk_str:>5}")
+
     def cmd_best(self, args):
         pos_filter = None
         n = 20
@@ -304,17 +376,50 @@ class DraftSession:
         if not available:
             print("No matching players available.")
             return
+        self._print_player_table(available[:n])
 
-        header = f'{"Player":22} {"Pos":4} {"Team":4} {"VORP":>7} {"VONA":>7} {"Pts":>7} {"Tier":>4} {"ADP":>6} {"Rk":>5} {"Bye":>4}'
-        print(header)
-        print("-" * len(header))
-        for p in available[:n]:
-            adp_str = f"{p.adp:.1f}" if p.adp is not None else "-"
-            rk_str = str(p.rk) if p.rk is not None else "-"
-            bye_str = p.bye or "-"
-            vona_str = f"{p.vona:.1f}" if p.vona is not None else "-"
-            print(f"{p.name:22} {p.position:4} {p.team:4} {p.vorp:7.1f} {vona_str:>7} "
-                  f"{p.points:7.1f} {(p.tier or -1):4} {adp_str:>6} {rk_str:>5} {bye_str:>4}")
+    def cmd_board(self, args):
+        n = 6
+        if args and args[0].isdigit():
+            n = int(args[0])
+        groups = ["QB", "RB", "WR", "OP", "TE", "K", "DST"]
+        available = [p for p in self.pool.values() if not p.drafted]
+
+        group_players = {}
+        for pos in groups:
+            if pos == "OP":
+                players = [p for p in available if p.position in de.OP_ELIGIBLE_POSITIONS]
+            else:
+                players = [p for p in available if p.position == pos]
+            players.sort(key=lambda p: p.vorp if p.vorp is not None else -9999, reverse=True)
+            group_players[pos] = players[:n]
+
+        # Find the position with the steepest cliff: the biggest gap between
+        # its best available player's VONA and the next-best player's VONA
+        # (the #1 player's VONA is 0 by construction, so this is effectively
+        # "how much value do I lose here if I don't take the top guy now").
+        highlight_player = None
+        best_delta = -1
+        for pos, players in group_players.items():
+            if len(players) < 2:
+                continue
+            top, second = players[0], players[1]
+            if top.vona is None or second.vona is None:
+                continue
+            delta = top.vona - second.vona
+            if delta > best_delta:
+                best_delta = delta
+                highlight_player = top
+
+        highlight_key = highlight_player.key if highlight_player else None
+        for pos in groups:
+            label = "OP (superflex-eligible)" if pos == "OP" else pos
+            print(f"\n=== Top {n} {label} ===")
+            self._print_player_table(group_players[pos], highlight_key=highlight_key)
+
+        if highlight_player:
+            print(f"\n* {highlight_player.name} ({highlight_player.position}) -- biggest cross-position "
+                  f"cliff: {best_delta:.1f} VONA gap to the next-best option at that position.")
 
     def cmd_player(self, args):
         if not args:
@@ -334,7 +439,8 @@ class DraftSession:
             status = "DRAFTED" + (" (yours)" if p.drafted_by_me else "") if p.drafted else "available"
             print(f"\n{p.name} -- {p.position}, {p.team} [{status}]")
             print(f"  Points: {p.points:.1f}   VORP: {p.vorp}   VONA: {p.vona}")
-            print(f"  Tier: {p.tier}   Rank: {p.rk}   ADP: {p.adp}   Bye: {p.bye}")
+            tier_display = _colorize_tier(p.tier).strip()
+            print(f"  Tier: {tier_display}   Rank: {p.rk}   ADP: {p.adp}   Bye: {p.bye}")
             if p.off_rank is not None:
                 print(f"  Team Off Rank: {p.off_rank} (grade {p.off_grade})   "
                       f"Def Rank: {p.def_rank} (grade {p.def_grade})")
@@ -357,14 +463,6 @@ class DraftSession:
         for pos, need in needs.items():
             have = counts.get(pos, 0)
             print(f"  {pos}: {max(0, need - have)} more needed (have {have}, need {need})")
-
-    def cmd_status(self, args):
-        total = len(self.picks)
-        rnd = total // self.num_teams + 1
-        pick_in_round = total % self.num_teams + 1
-        picks_left = de.picks_until_next_turn(total, self.my_slot, self.num_teams)
-        print(f"Pick {total + 1} overall (Round {rnd}, slot {pick_in_round} of {self.num_teams} on the clock).")
-        print(f"Your draft slot: {self.my_slot}. Picks until your next turn: {picks_left}.")
 
     def cmd_help(self, args):
         print(__doc__)
@@ -412,6 +510,7 @@ def main():
         "teamname": session.cmd_teamname,
         "undo": session.cmd_undo,
         "best": session.cmd_best,
+        "board": session.cmd_board,
         "player": session.cmd_player,
         "myteam": session.cmd_myteam,
         "status": session.cmd_status,

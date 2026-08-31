@@ -23,8 +23,10 @@ First run asks for your number of teams and draft slot — answer once, it's sav
 | `undo` | Revert the last pick (works whether it was yours or an opponent's) |
 | `best` | Top 20 available players by VORP, all positions |
 | `best RB` | Top 20 available RBs |
-| `best RB 5` | Top 5 available RBs |
-| `best OP` | Top 20 available players eligible for your superflex/OP slot (QB/RB/WR/TE) |
+| `best RB 5` | Top 5 available RBs || `best OP` | Top 20 available players eligible for your superflex/OP slot (QB/RB/WR/TE) |
+| `board` | Top 6 available players for EACH position (QB/RB/WR/OP/TE/K/DST) in one view |
+| `board 3` | Same, but top 3 per position instead of 6 |
+
 | `player <name>` | Full detail on one player, drafted or not |
 | `myteam` | Your roster so far + remaining dedicated-slot needs |
 | `status` | Current pick number, round, and picks until your next turn |
@@ -55,4 +57,8 @@ Re-pasting picks you've already entered is safe — duplicates are silently skip
 - **VORP** — season-long value over the last effective starter at that position (accounts for OP/superflex spillover). Your primary sort — tells you which position matters.
 - **VONA** — value over the best player likely still there at your *next* pick, based on real superflex ADP. Tells you whether you can wait a round. Recomputed live as the draft moves.
 - **Tier** — expert-consensus tier grouping; a tier change between now and your next pick is a good sanity check on a big VONA number.
-- Kickers and DST projections were converted from FantasyPros' per-game figures to season totals (×17) to be comparable with the season-total skill-player projections.
+- **OffRk** — that player's NFL team's projected offensive rank (1 = best), from the unit grades file. Always shown alongside the rest.
+- **`*` on the board** — `board` marks exactly one player league-wide: the top option at whichever position has the single steepest drop from its best available player to its next-best (biggest top-to-second VONA gap). That's the position where punting this pick hurts the most.
+- **Tier color** — the Tier column is color-coded (green = elite tiers, yellow/orange = mid, red = deep) in any real terminal. If you ever redirect output to a file, it automatically falls back to plain text.
+- **ADP delta** — the ADP column now shows `(+N)`/`(-N)` next to the value: how many picks past due (`+`) or still away (`-`) that player's ADP is relative to the current pick. A big positive number on someone still on the board is a real signal — other drafters are passing on the consensus for them.
+- Kickers and DST projections were converted from FantasyPros' per-game figures to season totals (×17) to be comparable with the season-total skill-player projections.exit
