@@ -56,7 +56,8 @@ class Player:
     team: str
     position: str          # QB / RB / WR / TE / K / DST
     points: float = 0.0    # projected season points, 0.5 PPR
-    tier: Optional[int] = None
+    fp_tier: Optional[int] = None   # FantasyPros expert-consensus tier
+    ta_tier: Optional[int] = None   # The Athletic tier (QB/RB/WR/TE only)
     rk: Optional[int] = None       # expert consensus rank within source file
     bye: Optional[str] = None
     adp: Optional[float] = None    # superflex-adjusted ADP where applicable
@@ -190,7 +191,7 @@ def load_kdst_points_ranks(path, position):
             players.append(Player(
                 name=name, team=team, position=position,
                 points=per_game * GAMES_PER_SEASON,
-                tier=tier, rk=rk,
+                fp_tier=tier, rk=rk,
             ))
     return players
 
@@ -276,6 +277,29 @@ def load_dst_adp(path, fullname_to_abbrev):
     return out
 
 
+def load_ta_tiers(path):
+    """the_athletic_tiers.csv -> dict[normalize_name(name)] = ta_tier (int).
+
+    QB/RB/WR/TE only -- no K/DST coverage, so those positions simply won't
+    have a TA Tier value (handled as None/blank downstream, same as any
+    other optional field). No team column in this file, so matching is by
+    normalized player name alone.
+    """
+    out = {}
+    with open(path, newline="", encoding="utf-8-sig") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            name = (row.get("Player") or "").strip()
+            if not name:
+                continue
+            try:
+                tier = int(row.get("TA Tier") or "")
+            except ValueError:
+                continue
+            out[normalize_name(name)] = tier
+    return out
+
+
 def load_team_grades(path):
     """2026_NFL_Unit_Grades_1.csv -> dict[full_name.lower()] = grade info."""
     out = {}
@@ -325,6 +349,7 @@ def build_player_pool(data_dir: str):
         "k_adp": _find_one(data_dir, "K_ADP"),
         "dst_adp": _find_one(data_dir, "DST_ADP"),
         "grades": _find_one(data_dir, "Unit_Grades"),
+        "ta_tiers": _find_one(data_dir, "the_athletic_tiers"),
     }
     missing = [k for k, v in paths.items() if v is None]
     if missing:
@@ -338,6 +363,7 @@ def build_player_pool(data_dir: str):
     sf_adp = load_superflex_adp(paths["sf_adp"])
     k_adp = load_k_adp(paths["k_adp"])
     grades = load_team_grades(paths["grades"])
+    ta_tiers = load_ta_tiers(paths["ta_tiers"])
 
     # Build a team-name lookup from the DST points file (has both full name & abbrev).
     fullname_to_abbrev = {}
@@ -367,9 +393,10 @@ def build_player_pool(data_dir: str):
         team = key[1]
         p = Player(
             name=rinfo["name"], team=team, position=rinfo["position"],
-            points=proj.get(key, 0.0), tier=rinfo["tier"], rk=rinfo["rk"],
+            points=proj.get(key, 0.0), fp_tier=rinfo["tier"], rk=rinfo["rk"],
             bye=rinfo["bye"], adp=sf_adp.get(key),
         )
+        p.ta_tier = ta_tiers.get(normalize_name(p.name))
         apply_grade(p, grade_for_abbrev(team))
         pool[p.key] = p
 

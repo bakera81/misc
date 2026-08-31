@@ -48,19 +48,19 @@ _TIER_COLORS = {
 }
 _TIER_DEFAULT_COLOR = "\033[31m"  # red -- tier 7+ (deep/replaceable)
 _TIER_NONE_COLOR = "\033[90m"     # gray -- no tier data
+_TIER_COL_WIDTH = 7
 
 
-def _colorize_tier(tier):
-    """Return a width-4 tier string, ANSI-colored if enabled. Padding is
-    applied to the plain text BEFORE wrapping in color codes so terminal
-    column alignment isn't thrown off by the invisible escape characters."""
-    text = f"{(tier if tier is not None else -1):4}"
-    if not USE_COLOR:
+def _colorize_tier(tier, plain=False):
+    """Return a width-{_TIER_COL_WIDTH} tier string. Colored (ANSI, if
+    enabled) unless plain=True. '-' for missing data, consistent with how
+    other optional columns (ADP, Rk, Bye) are displayed. Padding is applied
+    to the plain text BEFORE wrapping in color codes so terminal column
+    alignment isn't thrown off by the invisible escape characters."""
+    text = f"{tier:>{_TIER_COL_WIDTH}}" if tier is not None else f'{"-":>{_TIER_COL_WIDTH}}'
+    if plain or not USE_COLOR:
         return text
-    if tier is None:
-        code = _TIER_NONE_COLOR
-    else:
-        code = _TIER_COLORS.get(tier, _TIER_DEFAULT_COLOR)
+    code = _TIER_NONE_COLOR if tier is None else _TIER_COLORS.get(tier, _TIER_DEFAULT_COLOR)
     return f"{code}{text}{_RESET}"
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
@@ -440,7 +440,8 @@ class DraftSession:
         prefix = "  " if show_marker else ""
         adp_width = 13
         header = (f'{prefix}{"Player":22} {"Pos":4} {"Team":4} {"VORP":>7} {"VONA":>7} {"Pts":>7} '
-                  f'{"Tier":>4} {"ADP":>{adp_width}} {"Rk":>5} {"Bye":>4} {"OffRk":>5}')
+                  f'{"TA Tier":>{_TIER_COL_WIDTH}} {"FP Tier":>{_TIER_COL_WIDTH}} '
+                  f'{"ADP":>{adp_width}} {"Rk":>5} {"Bye":>4} {"OffRk":>5}')
         print(header)
         print("-" * len(header))
         for p in players:
@@ -454,9 +455,11 @@ class DraftSession:
             vona_str = f"{p.vona:.1f}" if p.vona is not None else "-"
             off_rk_str = str(p.off_rank) if p.off_rank is not None else "-"
             row_prefix = ("* " if (show_marker and p.key == highlight_key) else "  ") if show_marker else ""
-            tier_colored = _colorize_tier(p.tier)
+            ta_tier_colored = _colorize_tier(p.ta_tier)
+            fp_tier_plain = _colorize_tier(p.fp_tier, plain=True)
             print(f"{row_prefix}{p.name:22} {p.position:4} {p.team:4} {p.vorp:7.1f} {vona_str:>7} "
-                  f"{p.points:7.1f} {tier_colored} {adp_str:>{adp_width}} {rk_str:>5} {bye_str:>4} {off_rk_str:>5}")
+                  f"{p.points:7.1f} {ta_tier_colored} {fp_tier_plain} "
+                  f"{adp_str:>{adp_width}} {rk_str:>5} {bye_str:>4} {off_rk_str:>5}")
 
     def cmd_best(self, args):
         pos_filter = None
@@ -541,8 +544,10 @@ class DraftSession:
             status = "DRAFTED" + (" (yours)" if p.drafted_by_me else "") if p.drafted else "available"
             print(f"\n{p.name} -- {p.position}, {p.team} [{status}]")
             print(f"  Points: {p.points:.1f}   VORP: {p.vorp}   VONA: {p.vona}")
-            tier_display = _colorize_tier(p.tier).strip()
-            print(f"  Tier: {tier_display}   Rank: {p.rk}   ADP: {p.adp}   Bye: {p.bye}")
+            ta_tier_display = _colorize_tier(p.ta_tier).strip()
+            fp_tier_display = p.fp_tier if p.fp_tier is not None else "-"
+            print(f"  TA Tier: {ta_tier_display}   FP Tier: {fp_tier_display}   "
+                  f"Rank: {p.rk}   ADP: {p.adp}   Bye: {p.bye}")
             if p.off_rank is not None:
                 print(f"  Team Off Rank: {p.off_rank} (grade {p.off_grade})   "
                       f"Def Rank: {p.def_rank} (grade {p.def_grade})")
