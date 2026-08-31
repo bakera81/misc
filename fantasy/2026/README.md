@@ -33,20 +33,34 @@ First run asks for your number of teams and draft slot — answer once, it's sav
 | `help` | Show the command list |
 | `quit` | Save and exit |
 
-You don't need to type full names — partial names work (`pick cha` will offer Ja'Marr Chase, Chase Brown, etc. if there's more than one match) and small typos are tolerated.
+You don't need to type full names — partial names work (`pick cha` will offer Ja'Marr Chase, Chase Brown, etc. if there's more than one match) and small typos are tolerated. Defenses also work by nickname alone, or in ESPN's `Team D/ST` format — `pick Buccaneers D/ST`, `pick Bills`, and `pick Tampa Bay Buccaneers` all resolve to the same player, matching against the mascot name regardless of how it's phrased.
 
 ### Bulk paste
-If you're copying multiple picks straight from the ESPN app (e.g. "everything since last round"), use `bulk` instead of typing `pick` one at a time. Type `bulk`, paste a block like this straight from ESPN, then type `END` on its own line:
+If you're copying multiple picks straight from the ESPN app (e.g. "everything since last round"), use `bulk` instead of typing `pick` one at a time. Type `bulk`, paste, then type `END` on its own line. Two paste formats are auto-detected -- paste whichever ESPN gives you and it'll figure out which one it's looking at:
+
+**Format A** (team-roster view):
 ```
 Josh Allen / BUF QB
 R1, P1 - Luka and Loaded
-
-Jayden Daniels / WSH QB
-R1, P2 - Quinshon Rutabaga
 ```
-The first time you use it, it'll ask for your exact ESPN team name (so it can tell which picks are yours) — you can also set/update this anytime with `teamname <your team name>`.
 
-Re-pasting picks you've already entered is safe — duplicates are silently skipped. Any player it can't match gets reported by name so you can add it manually with `pick`, without holding up the rest of the batch.
+**Format B** (draft-results table view):
+```
+1
+
+Lamar Jackson
+BAL
+QB
+Quinshon Rutabaga
+214.9
+322.9
+3
+```
+Format B is tolerant of the mess ESPN's table view tends to produce when copied: table headers that repeat at the top of every new round ("Round 2 / Pick / Player / Team / ...") and stray "Q" lines (a queued-player badge that copies as its own line) can show up anywhere and get filtered out automatically.
+
+The first time you use `bulk`, it'll ask for your exact ESPN team name (so it can tell which picks are yours) -- you can also set/update this anytime with `teamname <your team name>`. Matching is done on the fantasy team name specifically, so it's safe even if a fantasy team happens to be named after a real player (e.g. a team called "Jonathan Taylor" won't get confused with the player Jonathan Taylor).
+
+Re-pasting picks you've already entered is safe -- duplicates are silently skipped. Any player it can't match, or any record it can't parse at all, gets reported individually so you can add it manually with `pick`, without holding up the rest of the batch.
 
 ## If something goes wrong mid-draft
 - A bad command or typo never crashes the session — you'll see an error message and can just try again.
@@ -61,4 +75,4 @@ Re-pasting picks you've already entered is safe — duplicates are silently skip
 - **`*` on the board** — `board` marks exactly one player league-wide: the top option at whichever position has the single steepest drop from its best available player to its next-best (biggest top-to-second VONA gap). That's the position where punting this pick hurts the most.
 - **Tier color** — the Tier column is color-coded (green = elite tiers, yellow/orange = mid, red = deep) in any real terminal. If you ever redirect output to a file, it automatically falls back to plain text.
 - **ADP delta** — the ADP column now shows `(+N)`/`(-N)` next to the value: how many picks past due (`+`) or still away (`-`) that player's ADP is relative to the current pick. A big positive number on someone still on the board is a real signal — other drafters are passing on the consensus for them.
-- Kickers and DST projections were converted from FantasyPros' per-game figures to season totals (×17) to be comparable with the season-total skill-player projections.exit
+- Kickers and DST projections were converted from FantasyPros' per-game figures to season totals (×17) to be comparable with the season-total skill-player projections.

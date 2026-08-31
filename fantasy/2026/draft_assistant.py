@@ -144,8 +144,34 @@ class DraftSession:
 
     # -- player lookup ---------------------------------------------------
 
+    _DST_SUFFIX_RE = re.compile(r"\s*(D\s*/\s*S\s*T|DST|DEF)\.?\s*$", re.IGNORECASE)
+
+    def _dst_nickname_match(self, query, pool):
+        """ESPN gives DSTs as 'Buccaneers D/ST'; our data has full team names
+        like 'Tampa Bay Buccaneers'. Strip the D/ST-style suffix and match
+        the remaining nickname against the last word of each DST's name.
+        Returns (player, True) / (None, candidates) / (None, None) if this
+        path found nothing (caller should fall through to normal matching)."""
+        stripped = self._DST_SUFFIX_RE.sub("", query).strip()
+        norm_stripped = de.normalize_name(stripped)
+        if not norm_stripped:
+            return None, None
+
+        dst_pool = [p for p in pool if p.position == "DST"]
+        nickname_matches = [p for p in dst_pool
+                             if de.normalize_name(p.name).split()[-1] == norm_stripped]
+        if not nickname_matches:
+            nickname_matches = [p for p in dst_pool if norm_stripped in de.normalize_name(p.name)]
+
+        if len(nickname_matches) == 1:
+            return nickname_matches[0], True
+        if len(nickname_matches) > 1:
+            return None, nickname_matches[:5]
+        return None, None
+
     def find_player(self, query, include_drafted=False):
-        """Match a name against players: exact, then substring (handles
+        """Match a name against players: exact, then DST nickname (handles
+        'Buccaneers D/ST' -> 'Tampa Bay Buccaneers'), then substring (handles
         partial typing like 'cha' -> 'Ja'Marr Chase'), then fuzzy.
         By default only searches available (undrafted) players; pass
         include_drafted=True to also match already-drafted players (used by
@@ -158,6 +184,12 @@ class DraftSession:
         exact = [p for p in pool if de.normalize_name(p.name) == norm_query]
         if len(exact) == 1:
             return exact[0], True
+
+        dst_player, dst_result = self._dst_nickname_match(query, pool)
+        if dst_player is not None:
+            return dst_player, True
+        if dst_result:  # ambiguous nickname match (multiple candidates)
+            return None, dst_result
 
         if len(norm_query) >= 3:
             substr = [p for p in pool if norm_query in de.normalize_name(p.name)]
@@ -190,10 +222,11 @@ class DraftSession:
     _BULK_PLAYER_RE = re.compile(r"^(.+?)\s*/\s*(\S+)\s+(\S+)$")
     _BULK_PICK_RE = re.compile(r"^R(\d+)\s*,\s*P(\d+)\s*-\s*(.+)$")
 
-    def parse_bulk_text(self, text):
-        """Parse ESPN's copy/paste draft-log format into a list of dicts:
-        {round, pick_in_round, overall_pick, player_name, fantasy_team}.
-        Malformed blocks are skipped and reported, not fatal."""
+    def parse_bulk_format_a(self, text):
+        """Format A: ESPN team-roster-style paste --
+            Josh Allen / BUF QB
+            R1, P1 - Luka and Loaded
+        Two lines per pick. Malformed blocks are skipped and reported, not fatal."""
         lines = [ln.strip() for ln in text.splitlines()]
         lines = [ln for ln in lines if ln]  # drop blank lines
         entries = []
@@ -208,15 +241,79 @@ class DraftSession:
                 name = pm.group(1).strip()
                 rnd, pick_in_rnd, team_name = int(pkm.group(1)), int(pkm.group(2)), pkm.group(3).strip()
                 overall = (rnd - 1) * self.num_teams + pick_in_rnd
-                entries.append({
-                    "round": rnd, "pick_in_round": pick_in_rnd, "overall_pick": overall,
-                    "player_name": name, "fantasy_team": team_name,
-                })
+                entries.append({"overall_pick": overall, "player_name": name, "fantasy_team": team_name})
                 i += 2
             else:
                 problems.append(player_line)
                 i += 1
         return entries, problems
+
+    # Lines that are pure formatting noise in format B: table headers that
+    # ESPN repeats at the top of every new round, and a stray "Q" line for
+    # players who were on someone's draft queue (a badge that copies as its
+    # own line). None of these are ever real field data.
+    _BULK_B_NOISE_WORDS = {"pick", "player", "team", "rk", "q"}
+    _BULK_B_ROUND_RE = re.compile(r"^round\b", re.IGNORECASE)
+    _BULK_B_YEAR_PTS_RE = re.compile(r"^\d{4}\s*pts\.?$", re.IGNORECASE)
+    _BULK_B_PROJ_PTS_RE = re.compile(r"^proj\.?\s*pts\.?$", re.IGNORECASE)
+
+    @classmethod
+    def _is_bulk_b_noise(cls, line):
+        s = line.strip()
+        if s == "":
+            return True
+        sl = s.lower()
+        return (sl in cls._BULK_B_NOISE_WORDS or cls._BULK_B_ROUND_RE.match(sl) or
+                cls._BULK_B_YEAR_PTS_RE.match(sl) or cls._BULK_B_PROJ_PTS_RE.match(sl))
+
+    def parse_bulk_format_b(self, text):
+        """Format B: ESPN draft-results-table-style paste -- one field per
+        line, pick number on its own line followed by a blank line:
+            1
+            <blank>
+            Lamar Jackson
+            BAL
+            QB
+            Quinshon Rutabaga
+            214.9
+            322.9
+            3
+        Field order per record is always: player name, team, position,
+        fantasy team name, then trailing stats we don't need. Header rows
+        ("Round 2 / Pick / Player / Team / ...") and stray "Q" queue markers
+        can appear anywhere and are filtered out before reading fields, so
+        only their fixed relative ORDER (not their line position) matters.
+        The pick-number-then-blank-line pattern is what's used to find where
+        each record starts, since it's the one thing that never appears
+        elsewhere in this format.
+        """
+        raw_lines = text.splitlines()
+        starts = []
+        for i, line in enumerate(raw_lines):
+            s = line.strip()
+            if s.isdigit() and i + 1 < len(raw_lines) and raw_lines[i + 1].strip() == "":
+                starts.append((i, int(s)))
+
+        entries = []
+        problems = []
+        for idx, (start_i, pick_num) in enumerate(starts):
+            end_i = starts[idx + 1][0] if idx + 1 < len(starts) else len(raw_lines)
+            field_lines = raw_lines[start_i + 2:end_i]  # skip pick-number line + its blank
+            clean = [ln.strip() for ln in field_lines if not self._is_bulk_b_noise(ln)]
+            if len(clean) < 4:
+                problems.append(f"Pick {pick_num}: only found {len(clean)} field(s), skipped")
+                continue
+            player_name, fantasy_team = clean[0], clean[3]
+            entries.append({"overall_pick": pick_num, "player_name": player_name,
+                             "fantasy_team": fantasy_team})
+        return entries, problems
+
+    def parse_bulk_text(self, text):
+        """Auto-detect and parse either supported paste format."""
+        entries, problems = self.parse_bulk_format_a(text)
+        if entries:
+            return entries, problems
+        return self.parse_bulk_format_b(text)
 
     def cmd_bulk(self, args):
         if self.my_team_name is None:
@@ -288,6 +385,11 @@ class DraftSession:
                 print(f"\nNote: none of the pasted picks matched your team name "
                       f"('{self.my_team_name}') -- double check it with 'teamname' if that's "
                       f"unexpected.")
+        if problems:
+            print(f"\n{len(problems)} line(s)/record(s) in the paste couldn't be parsed at all "
+                  f"(different format, or genuinely malformed) -- these were skipped entirely:")
+            for p in problems:
+                print(f"  - {p}")
 
     # -- other commands -------------------------------------------------
 
