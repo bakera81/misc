@@ -1,5 +1,6 @@
 .ipynb_checkpoints/
 .DS_Store
+*.pyc
 .Rproj.user
 fantasy/*/draft_state.json
 fantasy/2026/draft_state.json
